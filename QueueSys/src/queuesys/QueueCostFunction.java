@@ -108,13 +108,14 @@ public class QueueCostFunction implements ICostFunction {
         double p0 = 0;
         double ro = lambda/mu;
         for(int i = 0; i <= servicePointNumber ; i++){
-            p0 += Math.pow(ro, i)/(factorial(N-i)*factorial(i));
+            p0 += (Math.pow(ro, i))/(factorial(N-i)*factorial(i));
         }
         for(int i = servicePointNumber+1; i <= N ; i++){
-            p0 += Math.pow(ro, i)/(factorial(N-i)*factorial(servicePointNumber)*Math.pow(servicePointNumber, i-servicePointNumber));
+            p0 += (Math.pow(ro, i))/(factorial(N-i)*factorial(servicePointNumber)*Math.pow(servicePointNumber, i-servicePointNumber));
         }
         p0 *= factorial(N);
         p0 = 1/p0;
+        //System.out.println("P0 for m = " + servicePointNumber + " is " + p0);
         averageSystemCalls = p0;
         averageSystemCalls *= factorial(N);
         double temp = 0;
@@ -131,7 +132,7 @@ public class QueueCostFunction implements ICostFunction {
         result = c1*servicePointNumber + c2*averageSystemCalls;
     }
     
-    private int factorial(int n){
+    private double factorial(int n){
         if(n == 0) {
             return 1;
         }

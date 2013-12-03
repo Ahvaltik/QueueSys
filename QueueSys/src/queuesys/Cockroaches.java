@@ -130,6 +130,7 @@ public class Cockroaches {
             for (int c = 0; c < cockroaches.size(); ++c) {
                 cockroaches.get(c).moveRandomly();
             }
+            globalOptimum = findOptimum(cockroaches);
 
             // ruthless behavior
             globalOptimum.cockroach.eat(cockroaches.get(random.nextInt(cockroaches.size())));

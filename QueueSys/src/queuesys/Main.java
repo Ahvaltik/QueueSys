@@ -16,9 +16,9 @@ public class Main {
     public static void main(String[] args) {
         Cockroaches cockroaches = new Cockroaches();
         double lambda = 19;
-        double mu = 1;
+        double mu = 10;
         int N = 15;
-        int m = 7;
+        int m = 1;
         double c1 = 4;
         double c2 = 12;
         ICostFunction queueCostFunction = new QueueCostFunction(m, N, lambda, mu, c1, c2);
@@ -26,11 +26,11 @@ public class Main {
             System.out.println("value " + i + " = " + queueCostFunction.cost(i));
         }
         cockroaches.setCostFunction(queueCostFunction);
-        cockroaches.setDisperseStepSize(3.0);
-        cockroaches.setSwarmStepSize(5.0);
+        cockroaches.setDisperseStepSize(2.0);
+        cockroaches.setSwarmStepSize(3.0);
         cockroaches.setN(15);
 
-        int solution = cockroaches.solve(100, 100);
+        int solution = cockroaches.solve(100, 1000);
         System.out.printf("solution is: %d\n", solution);
     }
 }
