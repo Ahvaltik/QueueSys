@@ -30,7 +30,7 @@ public class Main {
         cockroaches.setSwarmStepSize(5.0);
         cockroaches.setN(15);
 
-        int solution = cockroaches.solve(1000, 1000);
+        int solution = cockroaches.solve(100, 100);
         System.out.printf("solution is: %d\n", solution);
     }
 }

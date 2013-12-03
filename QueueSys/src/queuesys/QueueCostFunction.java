@@ -11,7 +11,7 @@ package queuesys;
 public class QueueCostFunction implements ICostFunction {
 
     private int servicePointNumber;
-    private int systemSize;
+    private int N;
     private double lambda;
     private double mu;
     private double averageSystemCalls;
@@ -52,12 +52,12 @@ public class QueueCostFunction implements ICostFunction {
         this.servicePointNumber = servicePointNumber;
     }
 
-    public int getSystemSize() {
-        return systemSize;
+    public int getN() {
+        return N;
     }
 
-    public void setSystemSize(int systemSize) {
-        this.systemSize = systemSize;
+    public void setN(int N) {
+        this.N = N;
     }
 
     public double getLambda() {
@@ -97,7 +97,7 @@ public class QueueCostFunction implements ICostFunction {
 
     public QueueCostFunction(int m, int N, double l, double u, double c1, double c2) {
         this.servicePointNumber = m;
-        this.systemSize = N;
+        this.N = N;
         this.lambda = l;
         this.mu = u;
         this.c1 = c1;
@@ -108,26 +108,26 @@ public class QueueCostFunction implements ICostFunction {
         double p0 = 0;
         double ro = lambda/mu;
         for(int i = 0; i <= servicePointNumber ; i++){
-            p0 += Math.pow(ro, i)/(factorial(systemSize-i)*factorial(i));
+            p0 += Math.pow(ro, i)/(factorial(N-i)*factorial(i));
         }
-        for(int i = servicePointNumber+1; i <= systemSize ; i++){
-            p0 += Math.pow(ro, i)/(factorial(systemSize-i)*factorial(servicePointNumber)*Math.pow(servicePointNumber, i-servicePointNumber));
+        for(int i = servicePointNumber+1; i <= N ; i++){
+            p0 += Math.pow(ro, i)/(factorial(N-i)*factorial(servicePointNumber)*Math.pow(servicePointNumber, i-servicePointNumber));
         }
-        p0 *= factorial(systemSize);
+        p0 *= factorial(N);
         p0 = 1/p0;
         averageSystemCalls = p0;
-        averageSystemCalls *= factorial(systemSize);
+        averageSystemCalls *= factorial(N);
         double temp = 0;
         for(int i = 0; i <= servicePointNumber ; i++){
-            temp += Math.pow(ro, i)*i/(factorial(systemSize-i)*factorial(i));
+            temp += Math.pow(ro, i)*i/(factorial(N-i)*factorial(i));
         }
-        for(int i = servicePointNumber+1; i <= systemSize ; i++){
-            temp += Math.pow(ro, i)*i/(factorial(systemSize-i)*factorial(servicePointNumber)*Math.pow(servicePointNumber, i-servicePointNumber));
+        for(int i = servicePointNumber+1; i <= N ; i++){
+            temp += Math.pow(ro, i)*i/(factorial(N-i)*factorial(servicePointNumber)*Math.pow(servicePointNumber, i-servicePointNumber));
         }
         averageSystemCalls *= temp;
-        averageSystemTime = averageSystemCalls/(lambda*(systemSize-averageSystemCalls));
+        averageSystemTime = averageSystemCalls/(lambda*(N-averageSystemCalls));
         averageQueueTime = averageSystemTime - 1/mu;
-        averageOccupiedServicePoints = (systemSize-averageSystemCalls)*ro;
+        averageOccupiedServicePoints = (N-averageSystemCalls)*ro;
         result = c1*servicePointNumber + c2*averageSystemCalls;
     }
     
