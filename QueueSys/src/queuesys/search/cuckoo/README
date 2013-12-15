@@ -1,0 +1,3 @@
+Aby uruchomić Algorytm Kukułki należy wywołać linijkę:
+CuckooSearch.optymalization(int nestsNumber, int iterations, double pa, double stepSize, int N, ICostFunction function);
+Parametry metody są opisane.
