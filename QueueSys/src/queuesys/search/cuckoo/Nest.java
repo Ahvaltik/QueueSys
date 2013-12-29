@@ -33,7 +33,7 @@ public class Nest {
 		else
 			direction = -1;
 		this.egg.m += direction * Math.round(stepSize * generator.nextFloat());
-		if (egg.m < 0)
+		if (egg.m <= 0)
 			egg.m = 1;
 		else if (egg.m > N)
 			egg.m = N;

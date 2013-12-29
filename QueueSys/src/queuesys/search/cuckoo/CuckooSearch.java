@@ -70,7 +70,7 @@ public abstract class CuckooSearch {
 
 			// find the current best
 			currentBest = nests.get(0).getEgg();
-			System.out.printf("iteration %d: optimum = %d (%f)\n", i,
+			System.out.printf("iteration %d: optimum = %d (%f)\n", i+1,
 					currentBest, function.cost(currentBest));
 		}
 

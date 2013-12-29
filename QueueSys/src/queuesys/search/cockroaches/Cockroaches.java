@@ -2,10 +2,12 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package queuesys;
+package queuesys.search.cockroaches;
 
 import java.util.ArrayList;
 import java.util.Random;
+import queuesys.ICostFunction;
+import queuesys.TestCostFunction;
 
 /**
  *
@@ -140,7 +142,7 @@ public class Cockroaches {
 
         return globalOptimum.cockroach.m;
     }
-
+    /*
     public static void main(String[] args) {
         Cockroaches cockroaches = new Cockroaches();
 
@@ -151,5 +153,5 @@ public class Cockroaches {
 
         int solution = cockroaches.solve(1000, 1000);
         System.out.printf("solution is: %d\n", solution);
-    }
+    }*/
 }

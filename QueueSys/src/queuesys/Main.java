@@ -4,6 +4,10 @@
  */
 package queuesys;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import queuesys.search.cockroaches.Cockroaches;
+
 /**
  *
  * @author Paweł
@@ -30,7 +34,13 @@ public class Main {
         cockroaches.setSwarmStepSize(3.0);
         cockroaches.setN(15);
 
-        int solution = cockroaches.solve(100, 1000);
-        System.out.printf("solution is: %d\n", solution);
+        //int solution = cockroaches.solve(100, 1000);
+        //System.out.printf("solution is: %d\n", solution);
+        try {
+            System.out.println("Cuckoo Search solutions:");
+            queuesys.search.cuckoo.CuckooSearch.optymalization(20, 1000, 0.25, 0.1, 1000, queueCostFunction);
+        } catch (Exception ex) {
+            Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 }
