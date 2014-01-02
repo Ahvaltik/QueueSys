@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.Random;
 
 import queuesys.ICostFunction;
+import queuesys.Result;
 
 /**
  * Class representing CuckooSearch algorithm
@@ -34,25 +35,21 @@ public abstract class CuckooSearch {
 	 * @throws Exception
 	 *             for giving bad parameters
 	 */
-	public static int optymalization(int nestsNumber, int iterations,
+	public static Result optymalization(int nestsNumber, int iterations,
 			double pa, double stepSize, int N, ICostFunction function)
 			throws Exception {
 		if (nestsNumber <= 0 || iterations <= 0 || pa < 0 || pa > 1
 				|| stepSize <= 0 || N <= 0 || function == null)
 			throw new Exception("Bad parameters.");
 
-		float startTime = System.nanoTime();
-		float endTime = 0;
-
 		EggsComparator eggsComparator = new EggsComparator(function);
 		Random generator = new Random();
-		int currentBest = 0;
-		int theBestSolution = Integer.MAX_VALUE;
-		int iteration = 0;
 		// Generate an initial population of n host nests;
 		for (int i = 0; i < nestsNumber; ++i)
 			nests.add(new Nest(new Egg(N)));
 
+		queuesys.Result result = new queuesys.Result();
+		
 		for (int i = 0; i < iterations; ++i) {
 			// Get a cuckoo randomly (say, i) and replace its solution by random
 			// walk
@@ -75,22 +72,9 @@ public abstract class CuckooSearch {
 			abandonAndBuildNewNest(pa, N);
 
 			// find the current best
-			currentBest = nests.get(0).getEgg();
-			if (currentBest < theBestSolution) {
-				theBestSolution = currentBest;
-				iteration = i;
-				endTime = System.nanoTime();
-			}
-			/*
-			 * System.out.printf("iteration %d: optimum = %d (%f)\n", i,
-			 * currentBest, function.cost(currentBest));
-			 */
+			result.add(nests.get(0).getEgg());
 		}
-		System.out.println("The best solution found at " + (iteration + 1)
-				+ " iteration, in " + (endTime - startTime) / 1000000000);
-		System.out.println("Solution: " + theBestSolution + ", value: "
-				+ function.cost(theBestSolution));
-		return theBestSolution;
+		return result;
 	}
 
 	private static void abandonAndBuildNewNest(double pa, int N) {
