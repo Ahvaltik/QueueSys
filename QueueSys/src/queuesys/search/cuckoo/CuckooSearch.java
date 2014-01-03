@@ -44,31 +44,30 @@ public abstract class CuckooSearch {
 
 		EggsComparator eggsComparator = new EggsComparator(function);
 		Random generator = new Random();
-		// Generate an initial population of n host nests;
+		// generate an initial population of host nests
 		for (int i = 0; i < nestsNumber; ++i)
 			nests.add(new Nest(new Egg(N)));
 
-		queuesys.Result result = new queuesys.Result();
+		Result result = new Result();
 		
 		for (int i = 0; i < iterations; ++i) {
-			// Get a cuckoo randomly (say, i) and replace its solution by random
-			// walk
+			// get a cuckoo randomly replace its solution by random walk
 			Cuckoo cuckoo = nests.get(generator.nextInt(nestsNumber - 1) + 1)
 					.getCuckoo(stepSize, N);
 
-			// Choose a nest among n (say, j) randomly;
+			// choose a nest randomly
 			Nest nest = nests.get(generator.nextInt(nestsNumber - 1) + 1);
 
-			// if (F_i>F_j) then Replace j by the new solution;
+			// if cuckoo's egg is better then replace
 
 			if (eggsComparator.compare(nest, cuckoo) < 0)
 				nest.layEgg(cuckoo.getEgg());
 
-			// Rank the solutions/nests
+			// rank the solutions/nests
 			Collections.sort(nests, eggsComparator);
 
-			// A fraction (p_a) of the worse nests are abandoned and new ones
-			// are built;
+			// a fraction (pa) of the worse nests are abandoned and new ones
+			// are built
 			abandonAndBuildNewNest(pa, N);
 
 			// find the current best

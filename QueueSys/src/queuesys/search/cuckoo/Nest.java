@@ -25,7 +25,6 @@ public class Nest {
 	}
 
 	public Cuckoo getCuckoo(double stepSize, int N) {
-		// TODO: performing Lévy flights; maybe someday...
 		Random generator = new Random();
 		int direction;
 		if (generator.nextInt(2) == 0)
