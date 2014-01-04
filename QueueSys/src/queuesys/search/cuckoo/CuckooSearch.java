@@ -22,16 +22,16 @@ public abstract class CuckooSearch {
 	 * @param nestsNumber
 	 *            - (> 0)
 	 * @param iterations
-	 *            - iterations limit (> 0)
+	 *            - iterations number (> 0)
 	 * @param pa
 	 *            - probability of abandoning nest [0,1]
 	 * @param stepSize
-	 *            - for Levy flights (> 0)
+	 *            - for random walk (> 0)
 	 * @param N
 	 *            - limit places in queue
 	 * @param function
 	 *            - function which minimum will be calculated
-	 * @return best solution
+	 * @return set of results for each itearation
 	 * @throws Exception
 	 *             for giving bad parameters
 	 */
