@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.Random;
 
 import queuesys.ICostFunction;
+import queuesys.MyTableModel;
 import queuesys.Result;
 
 /**
@@ -35,7 +36,7 @@ public abstract class CuckooSearch {
 	 * @throws Exception
 	 *             for giving bad parameters
 	 */
-	public static Result optymalization(int nestsNumber, int iterations,
+	public static Result optymalization(MyTableModel model, int nestsNumber, int iterations,
 			double pa, double stepSize, int N, ICostFunction function)
 			throws Exception {
 		if (nestsNumber <= 0 || iterations <= 0 || pa < 0 || pa > 1
@@ -48,8 +49,6 @@ public abstract class CuckooSearch {
 		for (int i = 0; i < nestsNumber; ++i)
 			nests.add(new Nest(new Egg(N)));
 
-		Result result = new Result();
-		
 		for (int i = 0; i < iterations; ++i) {
 			// get a cuckoo randomly replace its solution by random walk
 			Cuckoo cuckoo = nests.get(generator.nextInt(nestsNumber - 1) + 1)
@@ -71,9 +70,10 @@ public abstract class CuckooSearch {
 			abandonAndBuildNewNest(pa, N);
 
 			// find the current best
-			result.add(nests.get(0).getEgg());
+			model.add(nests.get(0).getEgg());
 		}
-		return result;
+
+		return model.getResult();
 	}
 
 	private static void abandonAndBuildNewNest(double pa, int N) {

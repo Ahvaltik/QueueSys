@@ -25,7 +25,7 @@ public class Result {
         public long millisec;
         public Record(int value, long millisec) {
             this.value = value;
-            this.millisec = value;
+            this.millisec = millisec;
         }
         
     }

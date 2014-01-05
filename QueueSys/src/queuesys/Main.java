@@ -141,7 +141,7 @@ class Frame extends JFrame implements MouseListener, WindowListener {
 
         try {
             System.out.println("Cuckoo Search solutions:");
-            queuesys.search.cuckoo.CuckooSearch.optymalization(nestsCount, iterations, abandonProbability, randomStepSize, costFunction.getN(), costFunction);
+            queuesys.search.cuckoo.CuckooSearch.optymalization(getTableModel(), nestsCount, iterations, abandonProbability, randomStepSize, costFunction.getN(), costFunction);
         } catch (Exception ex) {
             Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -171,6 +171,8 @@ class Frame extends JFrame implements MouseListener, WindowListener {
             btnRunCockroaches.setEnabled(false);
             btnRunCuckoo.setEnabled(false);
             btnRunHybrid.setEnabled(false);
+
+            getTableModel().reset();
 
             switch (algorithm) {
                 case COCKROACH:

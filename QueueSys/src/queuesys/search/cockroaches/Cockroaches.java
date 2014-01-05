@@ -100,7 +100,6 @@ public class Cockroaches {
 
         for (int i = 0; i < cockroachesCount; ++i) {
             cockroaches.add(new Cockroach(random.nextInt(N) + 1));
-            System.out.printf("cockroach at: %d\n", cockroaches.get(i).m);
         }
 
         Solution globalOptimum = findOptimum(cockroaches);
@@ -142,7 +141,6 @@ public class Cockroaches {
             globalOptimum.cockroach.eat(cockroaches.get(random.nextInt(cockroaches.size())));
 
             model.add(globalOptimum.cockroach.m);
-            System.out.printf("iteration %d: optimum = %d (%f)\n", i, globalOptimum.cockroach.m, globalOptimum.cost);
         }
 
         return globalOptimum.cockroach.m;

@@ -56,4 +56,8 @@ public class MyTableModel extends AbstractTableModel {
             throw new RuntimeException("invalid row index");
         }
     }
+
+    public Result getResult() {
+        return result;
+    }
 }
