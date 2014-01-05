@@ -136,7 +136,7 @@ public class QueueCostFunction implements ICostFunction {
         if(n == 0) {
             return 1;
         }
-        int j = 1;
+        double j = 1;
         for(int i = 1; i <= n;i++){
             j *= i;
         }

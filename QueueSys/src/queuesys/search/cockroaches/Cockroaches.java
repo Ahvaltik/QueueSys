@@ -7,6 +7,8 @@ package queuesys.search.cockroaches;
 import java.util.ArrayList;
 import java.util.Random;
 import queuesys.ICostFunction;
+import queuesys.MyTableModel;
+import queuesys.Result;
 import queuesys.TestCostFunction;
 
 /**
@@ -93,11 +95,12 @@ public class Cockroaches {
         return optimum;
     }
 
-    public int solve(int cockroachesCount, int iterations) {
-        ArrayList<Cockroach> cockroaches = new ArrayList<>();
+    public int solve(MyTableModel model, int cockroachesCount, int iterations) {
+        ArrayList<Cockroach> cockroaches = new ArrayList<Cockroach>();
 
         for (int i = 0; i < cockroachesCount; ++i) {
             cockroaches.add(new Cockroach(random.nextInt(N) + 1));
+            System.out.printf("cockroach at: %d\n", cockroaches.get(i).m);
         }
 
         Solution globalOptimum = findOptimum(cockroaches);
@@ -130,13 +133,15 @@ public class Cockroaches {
 
             // disperse
             for (int c = 0; c < cockroaches.size(); ++c) {
-                cockroaches.get(c).moveRandomly();
+                if (cockroaches.get(c) != globalOptimum.cockroach)
+                    cockroaches.get(c).moveRandomly();
             }
             globalOptimum = findOptimum(cockroaches);
 
             // ruthless behavior
             globalOptimum.cockroach.eat(cockroaches.get(random.nextInt(cockroaches.size())));
 
+            model.add(globalOptimum.cockroach.m);
             System.out.printf("iteration %d: optimum = %d (%f)\n", i, globalOptimum.cockroach.m, globalOptimum.cost);
         }
 
@@ -151,7 +156,7 @@ public class Cockroaches {
         cockroaches.setSwarmStepSize(5.0);
         cockroaches.setN(1000);
 
-        int solution = cockroaches.solve(1000, 1000);
+        int solution = cockroaches.solve(10, 50);
         System.out.printf("solution is: %d\n", solution);
     }*/
 }
