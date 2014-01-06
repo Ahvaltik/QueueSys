@@ -62,7 +62,7 @@ class Frame extends JFrame implements MouseListener, WindowListener {
         @Override
         public boolean verify(JComponent input) {
             try {
-                return Integer.parseUnsignedInt(((JTextArea)input).getText()) > 0;
+                return Integer.parseInt(((JTextArea)input).getText()) > 0;
             } catch (NumberFormatException e) {
                 return false;
             }
