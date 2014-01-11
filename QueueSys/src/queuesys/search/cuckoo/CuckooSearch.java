@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Random;
 
-import queuesys.ICostFunction;
+import queuesys.CostFunction;
 import queuesys.MyTableModel;
 import queuesys.Result;
 
@@ -37,7 +37,7 @@ public abstract class CuckooSearch {
 	 *             for giving bad parameters
 	 */
 	public static Result optymalization(MyTableModel model, int nestsNumber, int iterations,
-			double pa, double stepSize, int N, ICostFunction function)
+			double pa, double stepSize, int N, CostFunction function)
 			throws Exception {
 		if (nestsNumber <= 0 || iterations <= 0 || pa < 0 || pa > 1
 				|| stepSize <= 0 || N <= 0 || function == null)

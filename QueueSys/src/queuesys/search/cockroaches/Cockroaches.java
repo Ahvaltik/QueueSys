@@ -6,10 +6,9 @@ package queuesys.search.cockroaches;
 
 import java.util.ArrayList;
 import java.util.Random;
-import queuesys.ICostFunction;
+
+import queuesys.CostFunction;
 import queuesys.MyTableModel;
-import queuesys.Result;
-import queuesys.TestCostFunction;
 
 /**
  *
@@ -18,8 +17,8 @@ import queuesys.TestCostFunction;
 public class Cockroaches {
     private Random random = new Random();
 
-    private ICostFunction costFunction;
-    public void setCostFunction(ICostFunction costFunction) {
+    private CostFunction costFunction;
+    public void setCostFunction(CostFunction costFunction) {
         this.costFunction = costFunction;
     }
 

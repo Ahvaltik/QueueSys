@@ -2,7 +2,7 @@ package queuesys.search.cuckoo;
 
 import java.util.Comparator;
 
-import queuesys.ICostFunction;
+import queuesys.CostFunction;
 
 /**
  * Comparator for solution
@@ -12,9 +12,9 @@ import queuesys.ICostFunction;
  */
 public class EggsComparator implements Comparator<Nest> {
 
-	private ICostFunction function;
+	private CostFunction function;
 
-	public EggsComparator(ICostFunction function) {
+	public EggsComparator(CostFunction function) {
 		this.function = function;
 	}
 

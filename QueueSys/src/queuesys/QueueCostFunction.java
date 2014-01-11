@@ -4,101 +4,45 @@
  */
 package queuesys;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 
 /**
  *
  * @author Paweł
  */
-public class QueueCostFunction implements ICostFunction {
-
-    private int servicePointNumber;
-    private int N;
-    private double lambda;
-    private double mu;
-    private double averageSystemCalls;
-    private double averageQueueCalls;
-    private double averageSystemTime;
-    private double averageQueueTime;
-    private double averageOccupiedServicePoints;
-
-    public double getAverageSystemCalls() {
-        return averageSystemCalls;
-    }
-
-    public double getAverageQueueCalls() {
-        return averageQueueCalls;
-    }
-
-    public double getAverageSystemTime() {
-        return averageSystemTime;
-    }
-
-    public double getAverageQueueTime() {
-        return averageQueueTime;
-    }
-
-    public double getAverageOccupiedServicePoints() {
-        return averageOccupiedServicePoints;
-    }
-
-    public double getResult() {
-        return result;
-    }
+public class QueueCostFunction extends CostFunction {
+    private final int servicePointNumber;
+    private final int N;
+    private final double lambda;
+    private final double mu;
+    private final double c1;
+    private final double c2;
+    private TreeMap<Integer, QueueSysResult> cachedResults = new TreeMap<>();
+    private TreeMap<Integer, QueueSysResult> cachedResultsNew = new TreeMap<>();
 
     public int getServicePointNumber() {
         return servicePointNumber;
-    }
-
-    public void setServicePointNumber(int servicePointNumber) {
-        this.servicePointNumber = servicePointNumber;
     }
 
     public int getN() {
         return N;
     }
 
-    public void setN(int N) {
-        this.N = N;
-    }
-
     public double getLambda() {
         return lambda;
-    }
-
-    public void setLambda(double lambda) {
-        this.lambda = lambda;
     }
 
     public double getMu() {
         return mu;
     }
 
-    public void setMu(double mu) {
-        this.mu = mu;
-    }
-
     public double getC1() {
         return c1;
-    }
-
-    public void setC1(double c1) {
-        this.c1 = c1;
     }
 
     public double getC2() {
         return c2;
     }
-
-    public void setC2(double c2) {
-        this.c2 = c2;
-    }
-    private double c1;
-    private double c2;
-    private double result;
 
     public QueueCostFunction(int m, int N, double l, double u, double c1, double c2) {
         this.servicePointNumber = m;
@@ -109,7 +53,7 @@ public class QueueCostFunction implements ICostFunction {
         this.c2 = c2;
     }
     
-    public void calculate(){
+    public QueueSysResult calculate(int servicePointNumber){
         double p0 = 0;
         double ro = lambda/mu;
         for(int i = 0; i <= servicePointNumber ; i++){
@@ -120,8 +64,7 @@ public class QueueCostFunction implements ICostFunction {
         }
         p0 *= factorial(N);
         p0 = 1/p0;
-        //System.out.println("P0 for m = " + servicePointNumber + " is " + p0);
-        averageSystemCalls = p0;
+        double averageSystemCalls = p0;
         averageSystemCalls *= factorial(N);
         double temp = 0;
         for(int i = 0; i <= servicePointNumber ; i++){
@@ -131,38 +74,67 @@ public class QueueCostFunction implements ICostFunction {
             temp += Math.pow(ro, i)*i/(factorial(N-i)*factorial(servicePointNumber)*Math.pow(servicePointNumber, i-servicePointNumber));
         }
         averageSystemCalls *= temp;
-        averageSystemTime = averageSystemCalls/(lambda*(N-averageSystemCalls));
-        averageQueueTime = averageSystemTime - 1/mu;
-        averageOccupiedServicePoints = (N-averageSystemCalls)*ro;
-        result = c1*servicePointNumber + c2*averageSystemCalls;
+        double averageSystemTime = averageSystemCalls/(lambda*(N-averageSystemCalls));
+        double averageQueueTime = averageSystemTime - 1/mu;
+        double averageQueueCalls = 0.0;
+        double averageOccupiedServicePoints = (N-averageSystemCalls)*ro;
+
+        double value = c1*servicePointNumber + c2*averageSystemCalls;
+
+        QueueSysResult result = new QueueSysResult(value, averageSystemCalls, averageQueueCalls, averageSystemTime, averageQueueTime, averageOccupiedServicePoints);
+        cachedResults.put(servicePointNumber, result);
+
+        return result;
     }
 
-    public void calculate_new() {
+    public QueueSysResult calculate_new(int m) {
         double p0 = 0.0;
         double rho = lambda / mu;
-        int m = servicePointNumber;
 
         double[] rho_pow = new double[N + 1];
         rho_pow[0] = 1.0;
-        for (int i = 1; i <= N; ++i) {
-            rho_pow[i] = rho_pow[i] * rho;
+        for (int i = 1; i < rho_pow.length; ++i) {
+            rho_pow[i] = rho_pow[i - 1] * rho;
         }
 
-        double[] m_pow = new double[N + 1];
+        double[] m_pow = new double[N + 1 - m];
         m_pow[0] = 1.0;
-        for (int i = 1; i <= N; ++i) {
-            m_pow[i] = m_pow[i] * m;
+        for (int i = 1; i < m_pow.length; ++i) {
+            m_pow[i] = m_pow[i - 1] * m;
         }
+
+        double[] sum_components = new double[N + 1];
 
         for (int i = 0; i <= m; ++i) {
-            p0 += rho_pow[i] * factorialsQuotient(new int[] { N }, new int[] { i, N - i });
+            sum_components[i] = rho_pow[i] * factorialsQuotient(new int[] { N }, new int[] { i, N - i });
+            p0 += sum_components[i];
         }
         for (int i = m + 1; i <= N; ++i) {
-            p0 += rho_pow[i] * factorialsQuotient(new int[] { N }, new int[] { N - i, m }) * m_pow[i - m];
+            sum_components[i] = rho_pow[i] / m_pow[i - m] * factorialsQuotient(new int[] { N }, new int[] { N - i, m });
+            p0 += sum_components[i];
         }
+
         p0 = 1.0 / p0;
+
+        double averageSystemCalls = 0.0;
+        for (int i = 0; i < N; ++i) {
+            averageSystemCalls += sum_components[i] * i;
+        }
+        averageSystemCalls *= p0;
+
+        double averageSystemTime = averageSystemCalls / (lambda * (N - averageSystemCalls));
+        double averageQueueTime = averageSystemTime - 1 / mu;
+        double averageQueueCalls = 0.0;
+        double averageOccupiedServicePoints = (N - averageSystemCalls) * rho;
+
+        double value = c1 * m + c2 * averageSystemCalls;
+
+        QueueSysResult result = new QueueSysResult(value, averageSystemCalls, averageQueueCalls, averageSystemTime, averageQueueTime, averageOccupiedServicePoints);
+        cachedResultsNew.put(m, result);
+
+        return result;
     }
-    
+
     private double factorial(int n){
         if(n == 0) {
             return 1;
@@ -182,7 +154,7 @@ public class QueueCostFunction implements ICostFunction {
             int candidate;
 
             if (primes.size() == 0) {
-                candidate = 2;
+                candidate = 1;
             } else {
                 candidate = primes.get(primes.size() - 1);
             }
@@ -209,6 +181,8 @@ public class QueueCostFunction implements ICostFunction {
                     ++i;
                 }
             } while (!isPrime);
+
+            primes.add(candidate);
         }
 
         return primes.get(n);
@@ -221,10 +195,12 @@ public class QueueCostFunction implements ICostFunction {
         while (n > 1) {
             int prime = nthPrime(i);
 
-            while (n % i == 0) {
+            while (n % prime == 0) {
                 ret.add(prime);
                 n /= prime;
             }
+
+            ++i;
         }
 
         return ret;
@@ -237,34 +213,53 @@ public class QueueCostFunction implements ICostFunction {
         int sndIdx = 0;
 
         while (fstIdx < first.size() && sndIdx < second.size()) {
-            while (first.get(fstIdx) < second.get(sndIdx)) {
-                ret.add(first.get(fstIdx++));
-            }
-            while (first.get(fstIdx) > second.get(sndIdx)) {
-                ret.add(first.get(sndIdx++));
+            if (first.get(fstIdx) < second.get(sndIdx)) {
+                do {
+                    ret.add(first.get(fstIdx));
+
+                    ++fstIdx;
+                    if (fstIdx >= first.size()) {
+                        break;
+                    }
+                } while (first.get(fstIdx) < second.get(sndIdx));
+            } else {
+                do {
+                    ret.add(second.get(sndIdx));
+
+                    ++sndIdx;
+                    if (sndIdx >= second.size()) {
+                        break;
+                    }
+                } while (first.get(fstIdx) > second.get(sndIdx));
             }
         }
 
         while (fstIdx < first.size()) {
             ret.add(first.get(fstIdx));
+            ++fstIdx;
         }
         while (sndIdx < second.size()) {
             ret.add(second.get(sndIdx));
+            ++sndIdx;
         }
 
         return ret;
     }
 
     // (x1! * x2! * ...) / (y1! * y2! * ...)
-    private double factorialsQuotient(int[] dividends, int[] divisors) {
+    private double factorialsQuotient(final int[] dividends, final int[] divisors) {
         ArrayList<Integer> dividendFactors = new ArrayList<>();
         ArrayList<Integer> divisorFactors = new ArrayList<>();
 
         for (int n: dividends) {
-            dividendFactors = mergeSortedLists(dividendFactors, factor(n));
+            for (int i = 2; i <= n; ++i) {
+                dividendFactors = mergeSortedLists(dividendFactors, factor(i));
+            }
         }
         for (int n: divisors) {
-            divisorFactors = mergeSortedLists(divisorFactors, factor(n));
+            for (int i = 2; i <= n; ++i) {
+                divisorFactors = mergeSortedLists(divisorFactors, factor(i));
+            }
         }
 
         double dividend = 1.0;
@@ -285,14 +280,31 @@ public class QueueCostFunction implements ICostFunction {
             }
         }
 
+        while (dividendIdx < dividendFactors.size()) {
+            dividend *= dividendFactors.get(dividendIdx++);
+        }
+        while (divisorIdx < divisorFactors.size()) {
+            divisor *= divisorFactors.get(divisorIdx++);
+        }
+
         return dividend / divisor;
     }
 
     @Override
-    public double cost(int m){
-        this.setServicePointNumber(m);
-        calculate();
-        return this.getResult();
+    public QueueSysResult result(int m){
+        QueueSysResult result = cachedResults.get(m);
+        if (result == null) {
+            result = calculate(m);
+        }
+        return result;
     }
-    
+
+    @Override
+    public QueueSysResult resultNew(int m) {
+        QueueSysResult result = cachedResultsNew.get(m);
+        if (result == null) {
+            result = calculate_new(m);
+        }
+        return result;
+    }
 }

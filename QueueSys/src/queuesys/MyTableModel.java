@@ -9,9 +9,24 @@ import javax.swing.table.AbstractTableModel;
 
 public class MyTableModel extends AbstractTableModel {
     private Result result = new Result();
-    private ICostFunction costFunction;
+    private CostFunction costFunction;
+    private static final String[] COLUMN_NAMES = new String[] {
+            "Iteration",
+            "Value",
+            "Cost",
+            "Avg sys time",
+            "Avg sys calls",
+            "Avg q time",
+            "Avg q calls",
+            "Cost (2)",
+            "Avg sys time",
+            "Avg sys calls",
+            "Avg q time",
+            "Avg q calls",
+            "Time"
+    };
 
-    public MyTableModel(ICostFunction costFunction) {
+    public MyTableModel(CostFunction costFunction) {
         reset(costFunction);
     }
 
@@ -19,7 +34,7 @@ public class MyTableModel extends AbstractTableModel {
         this(null);
     }
 
-    public void reset(ICostFunction costFunction) {
+    public void reset(CostFunction costFunction) {
         result = new Result();
         this.costFunction = costFunction;
     }
@@ -36,17 +51,12 @@ public class MyTableModel extends AbstractTableModel {
 
     @Override
     public int getColumnCount() {
-        return 4;
+        return COLUMN_NAMES.length;
     }
 
     @Override
     public String getColumnName(int column) {
-        return new String[] {
-                "Iteration",
-                "Value",
-                "Cost",
-                "Time"
-        }[column];
+        return COLUMN_NAMES[column];
     }
 
 
@@ -58,8 +68,26 @@ public class MyTableModel extends AbstractTableModel {
         case 1:
             return result.getValue(rowIndex);
         case 2:
-            return costFunction.cost(result.getValue(rowIndex));
+            return costFunction.result(result.getValue(rowIndex)).cost;
         case 3:
+            return costFunction.result(result.getValue(rowIndex)).averageSystemTime;
+        case 4:
+            return costFunction.result(result.getValue(rowIndex)).averageSystemCalls;
+        case 5:
+            return costFunction.result(result.getValue(rowIndex)).averageQueueTime;
+        case 6:
+            return costFunction.result(result.getValue(rowIndex)).averageQueueCalls;
+        case 7:
+            return costFunction.resultNew(result.getValue(rowIndex)).cost;
+        case 8:
+            return costFunction.resultNew(result.getValue(rowIndex)).averageSystemTime;
+        case 9:
+            return costFunction.resultNew(result.getValue(rowIndex)).averageSystemCalls;
+        case 10:
+            return costFunction.resultNew(result.getValue(rowIndex)).averageQueueTime;
+        case 11:
+            return costFunction.resultNew(result.getValue(rowIndex)).averageQueueCalls;
+        case 12:
             return result.getTimeOffset(rowIndex);
         default:
             throw new RuntimeException("invalid row index");
