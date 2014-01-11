@@ -18,11 +18,6 @@ public class MyTableModel extends AbstractTableModel {
             "Avg sys calls",
             "Avg q time",
             "Avg q calls",
-            "Cost (2)",
-            "Avg sys time",
-            "Avg sys calls",
-            "Avg q time",
-            "Avg q calls",
             "Time"
     };
 
@@ -68,26 +63,16 @@ public class MyTableModel extends AbstractTableModel {
         case 1:
             return result.getValue(rowIndex);
         case 2:
-            return costFunction.result(result.getValue(rowIndex)).cost;
+            return String.format("%.2f", costFunction.result(result.getValue(rowIndex)).cost);
         case 3:
-            return costFunction.result(result.getValue(rowIndex)).averageSystemTime;
+            return String.format("%.2f", costFunction.result(result.getValue(rowIndex)).averageSystemTime);
         case 4:
-            return costFunction.result(result.getValue(rowIndex)).averageSystemCalls;
+            return String.format("%.2f", costFunction.result(result.getValue(rowIndex)).averageSystemCalls);
         case 5:
-            return costFunction.result(result.getValue(rowIndex)).averageQueueTime;
+            return String.format("%.2f", costFunction.result(result.getValue(rowIndex)).averageQueueTime);
         case 6:
-            return costFunction.result(result.getValue(rowIndex)).averageQueueCalls;
+            return String.format("%.2f", costFunction.result(result.getValue(rowIndex)).averageQueueCalls);
         case 7:
-            return costFunction.resultNew(result.getValue(rowIndex)).cost;
-        case 8:
-            return costFunction.resultNew(result.getValue(rowIndex)).averageSystemTime;
-        case 9:
-            return costFunction.resultNew(result.getValue(rowIndex)).averageSystemCalls;
-        case 10:
-            return costFunction.resultNew(result.getValue(rowIndex)).averageQueueTime;
-        case 11:
-            return costFunction.resultNew(result.getValue(rowIndex)).averageQueueCalls;
-        case 12:
             return result.getTimeOffset(rowIndex);
         default:
             throw new RuntimeException("invalid row index");

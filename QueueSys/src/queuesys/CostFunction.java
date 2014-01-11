@@ -10,8 +10,6 @@ package queuesys;
  */
 public abstract class CostFunction {
     public abstract QueueSysResult result(int m);
-    public abstract QueueSysResult resultNew(int m);
 
     public double cost(int m) { return result(m).cost; }
-    public double costNew(int m) { return resultNew(m).cost; }
 }

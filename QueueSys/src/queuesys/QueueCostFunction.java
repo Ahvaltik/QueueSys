@@ -18,7 +18,6 @@ public class QueueCostFunction extends CostFunction {
     private final double c1;
     private final double c2;
     private TreeMap<Integer, QueueSysResult> cachedResults = new TreeMap<>();
-    private TreeMap<Integer, QueueSysResult> cachedResultsNew = new TreeMap<>();
 
     public int getServicePointNumber() {
         return servicePointNumber;
@@ -53,41 +52,7 @@ public class QueueCostFunction extends CostFunction {
         this.c2 = c2;
     }
     
-    public QueueSysResult calculate(int servicePointNumber){
-        double p0 = 0;
-        double ro = lambda/mu;
-        for(int i = 0; i <= servicePointNumber ; i++){
-            p0 += (Math.pow(ro, i))/(factorial(N-i)*factorial(i));
-        }
-        for(int i = servicePointNumber+1; i <= N ; i++){
-            p0 += (Math.pow(ro, i))/(factorial(N-i)*factorial(servicePointNumber)*Math.pow(servicePointNumber, i-servicePointNumber));
-        }
-        p0 *= factorial(N);
-        p0 = 1/p0;
-        double averageSystemCalls = p0;
-        averageSystemCalls *= factorial(N);
-        double temp = 0;
-        for(int i = 0; i <= servicePointNumber ; i++){
-            temp += Math.pow(ro, i)*i/(factorial(N-i)*factorial(i));
-        }
-        for(int i = servicePointNumber+1; i <= N ; i++){
-            temp += Math.pow(ro, i)*i/(factorial(N-i)*factorial(servicePointNumber)*Math.pow(servicePointNumber, i-servicePointNumber));
-        }
-        averageSystemCalls *= temp;
-        double averageSystemTime = averageSystemCalls/(lambda*(N-averageSystemCalls));
-        double averageQueueTime = averageSystemTime - 1/mu;
-        double averageQueueCalls = 0.0;
-        double averageOccupiedServicePoints = (N-averageSystemCalls)*ro;
-
-        double value = c1*servicePointNumber + c2*averageSystemCalls;
-
-        QueueSysResult result = new QueueSysResult(value, averageSystemCalls, averageQueueCalls, averageSystemTime, averageQueueTime, averageOccupiedServicePoints);
-        cachedResults.put(servicePointNumber, result);
-
-        return result;
-    }
-
-    public QueueSysResult calculate_new(int m) {
+    public QueueSysResult calculate(int m) {
         double p0 = 0.0;
         double rho = lambda / mu;
 
@@ -130,20 +95,9 @@ public class QueueCostFunction extends CostFunction {
         double value = c1 * m + c2 * averageSystemCalls;
 
         QueueSysResult result = new QueueSysResult(value, averageSystemCalls, averageQueueCalls, averageSystemTime, averageQueueTime, averageOccupiedServicePoints);
-        cachedResultsNew.put(m, result);
+        cachedResults.put(m, result);
 
         return result;
-    }
-
-    private double factorial(int n){
-        if(n == 0) {
-            return 1;
-        }
-        double j = 1;
-        for(int i = 1; i <= n;i++){
-            j *= i;
-        }
-        return j;
     }
 
     private static ArrayList<Integer> primes = new ArrayList<>();
@@ -295,15 +249,6 @@ public class QueueCostFunction extends CostFunction {
         QueueSysResult result = cachedResults.get(m);
         if (result == null) {
             result = calculate(m);
-        }
-        return result;
-    }
-
-    @Override
-    public QueueSysResult resultNew(int m) {
-        QueueSysResult result = cachedResultsNew.get(m);
-        if (result == null) {
-            result = calculate_new(m);
         }
         return result;
     }
