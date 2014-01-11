@@ -9,13 +9,19 @@ import javax.swing.table.AbstractTableModel;
 
 public class MyTableModel extends AbstractTableModel {
     private Result result = new Result();
+    private ICostFunction costFunction;
 
-    public MyTableModel() {
-        reset();
+    public MyTableModel(ICostFunction costFunction) {
+        reset(costFunction);
     }
 
-    public void reset() {
+    public MyTableModel() {
+        this(null);
+    }
+
+    public void reset(ICostFunction costFunction) {
         result = new Result();
+        this.costFunction = costFunction;
     }
 
     public void add(int value) {
@@ -30,7 +36,7 @@ public class MyTableModel extends AbstractTableModel {
 
     @Override
     public int getColumnCount() {
-        return 3;
+        return 4;
     }
 
     @Override
@@ -38,6 +44,7 @@ public class MyTableModel extends AbstractTableModel {
         return new String[] {
                 "Iteration",
                 "Value",
+                "Cost",
                 "Time"
         }[column];
     }
@@ -51,6 +58,8 @@ public class MyTableModel extends AbstractTableModel {
         case 1:
             return result.getValue(rowIndex);
         case 2:
+            return costFunction.cost(result.getValue(rowIndex));
+        case 3:
             return result.getTimeOffset(rowIndex);
         default:
             throw new RuntimeException("invalid row index");

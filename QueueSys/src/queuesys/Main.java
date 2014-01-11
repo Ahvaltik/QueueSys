@@ -19,76 +19,151 @@ class Frame extends JFrame implements MouseListener, WindowListener {
         NONE, COCKROACH, CUCKOO, HYBRID
     }
 
+    static abstract class VerifierBase extends InputVerifier {
+        Component[] componentsToLock;
+
+        protected VerifierBase(Component[] componentsToLock) {
+            this.componentsToLock = componentsToLock;
+        }
+
+        protected void unlockComponents() {
+            for (Component c: componentsToLock) {
+                c.setEnabled(true);
+            }
+        }
+
+        protected void lockComponents() {
+            for (Component c: componentsToLock) {
+                c.setEnabled(false);
+            }
+        }
+    }
+
     /* dowolna liczba zmiennoprzecinkowa */
-    static class DoubleVerifier extends InputVerifier {
+    static class DoubleVerifier extends VerifierBase {
+        public DoubleVerifier(Component[] componentsToLock) {
+            super(componentsToLock);
+        }
+
         @Override
         public boolean verify(JComponent input) {
             try {
-                Double.parseDouble(((JTextArea)input).getText());
+                Double.parseDouble(((JTextField)input).getText());
+                unlockComponents();
                 return true;
             } catch (NumberFormatException e) {
+                lockComponents();
                 return false;
             }
+        }
+    }
+
+    /* dodatnia liczba zmiennoprzecinkowa */
+    static class PositiveDoubleVerifier extends VerifierBase {
+        public PositiveDoubleVerifier(Component[] componentsToLock) {
+            super(componentsToLock);
+        }
+
+        @Override
+        public boolean verify(JComponent input) {
+            try {
+                if (Double.parseDouble(((JTextField)input).getText()) > 0.0) {
+                    unlockComponents();
+                    return true;
+                }
+            } catch (NumberFormatException e) {
+            }
+
+            lockComponents();
+            return false;
         }
     }
 
     /* nieujemna liczba zmiennoprzecinkowa (x >= 0) */
-    static class NonNegativeDoubleVerifier extends InputVerifier {
+    static class NonNegativeDoubleVerifier extends VerifierBase {
+        public NonNegativeDoubleVerifier(Component[] componentsToLock) {
+            super(componentsToLock);
+        }
+
         @Override
         public boolean verify(JComponent input) {
             try {
-                return Double.parseDouble(((JTextArea)input).getText()) > 0.0;
+                if (Double.parseDouble(((JTextField)input).getText()) > 0.0) {
+                    unlockComponents();
+                    return true;
+                }
             } catch (NumberFormatException e) {
-                return false;
             }
+
+            lockComponents();
+            return false;
         }
     }
 
     /* prawdopodobienstwo (0 <= x <= 1) */
-    static class ProbabilityVerifier extends InputVerifier {
+    static class ProbabilityVerifier extends VerifierBase {
+        public ProbabilityVerifier(Component[] componentsToLock) {
+            super(componentsToLock);
+        }
+
         @Override
         public boolean verify(JComponent input) {
             try {
-                double val = Double.parseDouble(((JTextArea)input).getText());
-                return val >= 0.0 && val <= 1.0;
+                double val = Double.parseDouble(((JTextField)input).getText());
+                if (val >= 0.0 && val <= 1.0) {
+                    unlockComponents();
+                    return true;
+                }
             } catch (NumberFormatException e) {
-                return false;
             }
+
+            lockComponents();
+            return false;
         }
     }
 
     /* dodatnia liczba calkowita (x > 0) */
-    static class PositiveIntVerifier extends InputVerifier {
+    static class PositiveIntVerifier extends VerifierBase {
+        public PositiveIntVerifier(Component[] componentsToLock) {
+            super(componentsToLock);
+        }
+
         @Override
         public boolean verify(JComponent input) {
             try {
-                return Integer.parseInt(((JTextArea)input).getText()) > 0;
+                if (Integer.parseInt(((JTextField)input).getText()) > 0) {
+                    unlockComponents();
+                    return true;
+                }
             } catch (NumberFormatException e) {
-                return false;
             }
+
+            lockComponents();
+            return false;
         }
     }
 
     private JTable table;
     private Algorithm algorithm = Algorithm.NONE;
+    private boolean isClosing = false;
 
-    private JTextArea textLambda;
-    private JTextArea textMu;
-    private JTextArea textN;
-    private JTextArea textM;
-    private JTextArea textC1;
-    private JTextArea textC2;
+    private JTextField textLambda;
+    private JTextField textMu;
+    private JTextField textN;
+    private JTextField textM;
+    private JTextField textC1;
+    private JTextField textC2;
 
-    private JTextArea textCockroachesCount;
-    private JTextArea textCockroachIterations;
-    private JTextArea textCockroachDisperseStepSize;
-    private JTextArea textCockroachSwarmStepSize;
+    private JTextField textCockroachesCount;
+    private JTextField textCockroachIterations;
+    private JTextField textCockroachDisperseStepSize;
+    private JTextField textCockroachSwarmStepSize;
     private JButton btnRunCockroaches;
 
-    private JTextArea textCuckooNestsCount;
-    private JTextArea textCuckooIterations;
-    private JTextArea textCuckooAbandonProbability;
-    private JTextArea textCuckooRandomStepSize;
+    private JTextField textCuckooNestsCount;
+    private JTextField textCuckooIterations;
+    private JTextField textCuckooAbandonProbability;
+    private JTextField textCuckooRandomStepSize;
     private JButton btnRunCuckoo;
 
     private JButton btnRunHybrid;
@@ -113,9 +188,8 @@ class Frame extends JFrame implements MouseListener, WindowListener {
         return new QueueCostFunction(m, N, lambda, mu, c1, c2);
     }
 
-    private void runCockroach() {
+    private void runCockroach(QueueCostFunction costFunction) {
         Cockroaches cockroaches = new Cockroaches();
-        QueueCostFunction costFunction = getCostFunction();
 
         double disperseStepSize = Double.parseDouble(textCockroachDisperseStepSize.getText());
         double swarmStepSize = Double.parseDouble(textCockroachSwarmStepSize.getText());
@@ -131,9 +205,7 @@ class Frame extends JFrame implements MouseListener, WindowListener {
         System.out.printf("solution is: %d\n", solution);
     }
 
-    private void runCuckoo() {
-        QueueCostFunction costFunction = getCostFunction();
-
+    private void runCuckoo(QueueCostFunction costFunction) {
         int nestsCount = Integer.parseInt(textCuckooNestsCount.getText());
         int iterations = Integer.parseInt(textCockroachIterations.getText());
         double abandonProbability = Double.parseDouble(textCuckooAbandonProbability.getText());
@@ -147,7 +219,7 @@ class Frame extends JFrame implements MouseListener, WindowListener {
         }
     }
 
-    private void runHybrid() {
+    private void runHybrid(QueueCostFunction costFunction) {
         /* TODO */
     }
 
@@ -162,7 +234,7 @@ class Frame extends JFrame implements MouseListener, WindowListener {
                     }
 
                     /* program zamkniety */
-                    if (!isShowing()) {
+                    if (isClosing) {
                         return;
                     }
                 }
@@ -172,17 +244,18 @@ class Frame extends JFrame implements MouseListener, WindowListener {
             btnRunCuckoo.setEnabled(false);
             btnRunHybrid.setEnabled(false);
 
-            getTableModel().reset();
+            QueueCostFunction costFunction = getCostFunction();
+            getTableModel().reset(costFunction);
 
             switch (algorithm) {
                 case COCKROACH:
-                    runCockroach();
+                    runCockroach(costFunction);
                     break;
                 case CUCKOO:
-                    runCuckoo();
+                    runCuckoo(costFunction);
                     break;
                 case HYBRID:
-                    runHybrid();
+                    runHybrid(costFunction);
                     break;
                 default:
                     break;
@@ -193,22 +266,22 @@ class Frame extends JFrame implements MouseListener, WindowListener {
             btnRunHybrid.setEnabled(true);
 
             algorithm = Algorithm.NONE;
-        } while (isShowing());
+        } while (!isClosing);
     }
 
-    private JTextArea addParameterInput(String labelText, String defaultValue, JComponent parent, int yIndex, InputVerifier verifier) {
+    private JTextField addParameterInput(String labelText, String defaultValue, JComponent parent, int yIndex, InputVerifier verifier) {
         JLabel label = new JLabel(labelText);
-        JTextArea textArea = new JTextArea();
+        JTextField textField = new JTextField();
 
         label.setHorizontalAlignment(JLabel.RIGHT);
 
-        textArea.setInputVerifier(verifier);
-        textArea.setText(defaultValue);
+        textField.setInputVerifier(verifier);
+        textField.setText(defaultValue);
 
         GridBagConstraints constraints = new GridBagConstraints();
         constraints.insets = new Insets(1, 1, 1, 1);
         constraints.fill = GridBagConstraints.HORIZONTAL;
-        constraints.anchor = GridBagConstraints.NORTH;
+        constraints.anchor = GridBagConstraints.CENTER;
         constraints.gridy = yIndex;
 
         constraints.weightx = 0.0;
@@ -217,9 +290,9 @@ class Frame extends JFrame implements MouseListener, WindowListener {
 
         constraints.weightx = 1.0;
         constraints.gridx = 1;
-        parent.add(textArea, constraints);
+        parent.add(textField, constraints);
 
-        return textArea;
+        return textField;
     }
 
     private JButton addButton(String labelText, JComponent parent, int yIndex) {
@@ -252,12 +325,16 @@ class Frame extends JFrame implements MouseListener, WindowListener {
         JPanel panel = new JPanel();
         panel.setLayout(new GridBagLayout());
 
-        textLambda = addParameterInput("Lambda:", "19", panel, 0, new DoubleVerifier());
-        textMu =     addParameterInput("Mu:",     "10", panel, 1, new DoubleVerifier());
-        textN =      addParameterInput("N:",      "15", panel, 2, new PositiveIntVerifier());
-        textM =      addParameterInput("m:",      "1",  panel, 3, new PositiveIntVerifier());
-        textC1 =     addParameterInput("C1:",     "4",  panel, 4, new DoubleVerifier());
-        textC2 =     addParameterInput("C2:",     "12", panel, 5, new DoubleVerifier());
+        Component[] buttonsToLock = new Component[] {
+                btnRunCockroaches, btnRunCuckoo, btnRunHybrid
+        };
+
+        textLambda = addParameterInput("Lambda:", "19", panel, 0, new DoubleVerifier(buttonsToLock));
+        textMu =     addParameterInput("Mu:",     "10", panel, 1, new PositiveDoubleVerifier(buttonsToLock));
+        textN =      addParameterInput("N:",      "15", panel, 2, new PositiveIntVerifier(buttonsToLock));
+        textM =      addParameterInput("m:",      "1",  panel, 3, new PositiveIntVerifier(buttonsToLock));
+        textC1 =     addParameterInput("C1:",     "4",  panel, 4, new DoubleVerifier(buttonsToLock));
+        textC2 =     addParameterInput("C2:",     "12", panel, 5, new DoubleVerifier(buttonsToLock));
 
         addVerticalSpacer(panel, 6);
         return panel;
@@ -267,13 +344,15 @@ class Frame extends JFrame implements MouseListener, WindowListener {
         JPanel panel = new JPanel();
         panel.setLayout(new GridBagLayout());
 
-        textCockroachDisperseStepSize = addParameterInput("Disperse step size:", "2",    panel, 0, new NonNegativeDoubleVerifier());
-        textCockroachSwarmStepSize =    addParameterInput("Swarm step size:",    "3",    panel, 1, new NonNegativeDoubleVerifier());
-        textCockroachesCount =          addParameterInput("Cockroaches count:",  "100",  panel, 2, new PositiveIntVerifier());
-        textCockroachIterations =       addParameterInput("Iterations:",         "1000", panel, 3, new PositiveIntVerifier());
-
         btnRunCockroaches = addButton("Run", panel, 4);
         btnRunCockroaches.addMouseListener(this);
+
+        Component[] buttonsToLock = new Component[] { btnRunCockroaches };
+
+        textCockroachDisperseStepSize = addParameterInput("Disperse step size:", "4",  panel, 0, new NonNegativeDoubleVerifier(buttonsToLock));
+        textCockroachSwarmStepSize =    addParameterInput("Swarm step size:",    "5",  panel, 1, new NonNegativeDoubleVerifier(buttonsToLock));
+        textCockroachesCount =          addParameterInput("Cockroaches count:",  "5",  panel, 2, new PositiveIntVerifier(buttonsToLock));
+        textCockroachIterations =       addParameterInput("Iterations:",         "50", panel, 3, new PositiveIntVerifier(buttonsToLock));
 
         addVerticalSpacer(panel, 5);
         return panel;
@@ -283,13 +362,15 @@ class Frame extends JFrame implements MouseListener, WindowListener {
         JPanel panel = new JPanel();
         panel.setLayout(new GridBagLayout());
 
-        textCuckooNestsCount =         addParameterInput("Nests count:",         "20",   panel, 0, new PositiveIntVerifier());
-        textCuckooIterations =         addParameterInput("Iterations:",          "1000", panel, 1, new PositiveIntVerifier());
-        textCuckooAbandonProbability = addParameterInput("Abandon probability:", "0.25", panel, 2, new ProbabilityVerifier());
-        textCuckooRandomStepSize =     addParameterInput("Random step size:",    "0.1",  panel, 3, new NonNegativeDoubleVerifier());
-
         btnRunCuckoo = addButton("Run", panel, 4);
         btnRunCuckoo.addMouseListener(this);
+
+        Component[] buttonsToLock = new Component[] { btnRunCuckoo };
+
+        textCuckooNestsCount =         addParameterInput("Nests count:",         "20",   panel, 0, new PositiveIntVerifier(buttonsToLock));
+        textCuckooIterations =         addParameterInput("Iterations:",          "50",   panel, 1, new PositiveIntVerifier(buttonsToLock));
+        textCuckooAbandonProbability = addParameterInput("Abandon probability:", "0.25", panel, 2, new ProbabilityVerifier(buttonsToLock));
+        textCuckooRandomStepSize =     addParameterInput("Random step size:",    "0.1",  panel, 3, new NonNegativeDoubleVerifier(buttonsToLock));
 
         addVerticalSpacer(panel, 5);
         return panel;
@@ -299,9 +380,10 @@ class Frame extends JFrame implements MouseListener, WindowListener {
         JPanel panel = new JPanel();
         panel.setLayout(new GridBagLayout());
 
-        /* TODO */
         btnRunHybrid = addButton("Run", panel, 0);
         btnRunHybrid.addMouseListener(this);
+
+        /* TODO */
 
         addVerticalSpacer(panel, 1);
         return panel;
@@ -354,6 +436,10 @@ class Frame extends JFrame implements MouseListener, WindowListener {
     public void mouseClicked(MouseEvent e) {
         JButton button = (JButton)e.getComponent();
 
+        if (!button.hasFocus()) {
+            return;
+        }
+
         synchronized (this) {
             if (button == btnRunCockroaches) {
                 algorithm = Algorithm.COCKROACH;
@@ -379,11 +465,11 @@ class Frame extends JFrame implements MouseListener, WindowListener {
     @Override
     public void windowClosing(WindowEvent e) {
         /* obudz watek wykonujacy obliczenia, jesli czeka na wybor algorytmu */
+        isClosing = true;
         synchronized (this) {
             notifyAll();
         }
     }
-
 }
 
 public class Main {
