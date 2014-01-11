@@ -4,6 +4,11 @@
  */
 package queuesys;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
+
 /**
  *
  * @author Paweł
@@ -131,6 +136,32 @@ public class QueueCostFunction implements ICostFunction {
         averageOccupiedServicePoints = (N-averageSystemCalls)*ro;
         result = c1*servicePointNumber + c2*averageSystemCalls;
     }
+
+    public void calculate_new() {
+        double p0 = 0.0;
+        double rho = lambda / mu;
+        int m = servicePointNumber;
+
+        double[] rho_pow = new double[N + 1];
+        rho_pow[0] = 1.0;
+        for (int i = 1; i <= N; ++i) {
+            rho_pow[i] = rho_pow[i] * rho;
+        }
+
+        double[] m_pow = new double[N + 1];
+        m_pow[0] = 1.0;
+        for (int i = 1; i <= N; ++i) {
+            m_pow[i] = m_pow[i] * m;
+        }
+
+        for (int i = 0; i <= m; ++i) {
+            p0 += rho_pow[i] * factorialsQuotient(new int[] { N }, new int[] { i, N - i });
+        }
+        for (int i = m + 1; i <= N; ++i) {
+            p0 += rho_pow[i] * factorialsQuotient(new int[] { N }, new int[] { N - i, m }) * m_pow[i - m];
+        }
+        p0 = 1.0 / p0;
+    }
     
     private double factorial(int n){
         if(n == 0) {
@@ -142,7 +173,121 @@ public class QueueCostFunction implements ICostFunction {
         }
         return j;
     }
-    
+
+    private static ArrayList<Integer> primes = new ArrayList<>();
+
+    // 0-indexed
+    private int nthPrime(int n) {
+        while (primes.size() <= n) {
+            int candidate;
+
+            if (primes.size() == 0) {
+                candidate = 2;
+            } else {
+                candidate = primes.get(primes.size() - 1);
+            }
+
+            boolean isPrime;
+
+            do {
+                candidate = candidate + 1;
+                isPrime = true;
+
+                int i = 0;
+
+                while (isPrime && i < primes.size()) {
+                    int prime = primes.get(i);
+
+                    if (prime > (int)Math.sqrt(candidate)) {
+                        break;
+                    }
+
+                    if (candidate % prime == 0) {
+                        isPrime = false;
+                    }
+
+                    ++i;
+                }
+            } while (!isPrime);
+        }
+
+        return primes.get(n);
+    }
+
+    private ArrayList<Integer> factor(long n) {
+        ArrayList<Integer> ret = new ArrayList<>();
+        int i = 0;
+
+        while (n > 1) {
+            int prime = nthPrime(i);
+
+            while (n % i == 0) {
+                ret.add(prime);
+                n /= prime;
+            }
+        }
+
+        return ret;
+    }
+
+    private ArrayList<Integer> mergeSortedLists(ArrayList<Integer> first, ArrayList<Integer> second) {
+        ArrayList<Integer> ret = new ArrayList<>();
+
+        int fstIdx = 0;
+        int sndIdx = 0;
+
+        while (fstIdx < first.size() && sndIdx < second.size()) {
+            while (first.get(fstIdx) < second.get(sndIdx)) {
+                ret.add(first.get(fstIdx++));
+            }
+            while (first.get(fstIdx) > second.get(sndIdx)) {
+                ret.add(first.get(sndIdx++));
+            }
+        }
+
+        while (fstIdx < first.size()) {
+            ret.add(first.get(fstIdx));
+        }
+        while (sndIdx < second.size()) {
+            ret.add(second.get(sndIdx));
+        }
+
+        return ret;
+    }
+
+    // (x1! * x2! * ...) / (y1! * y2! * ...)
+    private double factorialsQuotient(int[] dividends, int[] divisors) {
+        ArrayList<Integer> dividendFactors = new ArrayList<>();
+        ArrayList<Integer> divisorFactors = new ArrayList<>();
+
+        for (int n: dividends) {
+            dividendFactors = mergeSortedLists(dividendFactors, factor(n));
+        }
+        for (int n: divisors) {
+            divisorFactors = mergeSortedLists(divisorFactors, factor(n));
+        }
+
+        double dividend = 1.0;
+        double divisor = 1.0;
+        int dividendIdx = 0;
+        int divisorIdx = 0;
+
+        while (dividendIdx < dividendFactors.size() && divisorIdx < divisorFactors.size()) {
+            if (dividendFactors.get(dividendIdx) < divisorFactors.get(divisorIdx)) {
+                dividend *= dividendFactors.get(dividendIdx);
+                ++dividendIdx;
+            } else if (dividendFactors.get(dividendIdx) > divisorFactors.get(divisorIdx)) {
+                divisor *= divisorFactors.get(divisorIdx);
+                ++divisorIdx;
+            } else {
+                ++dividendIdx;
+                ++divisorIdx;
+            }
+        }
+
+        return dividend / divisor;
+    }
+
     @Override
     public double cost(int m){
         this.setServicePointNumber(m);

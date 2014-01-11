@@ -10,7 +10,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import queuesys.search.cockroaches.Cockroaches;
-import sun.awt.WindowClosingListener;
+import queuesys.search.hybrid.Hybrid;
 
 import javax.swing.*;
 
@@ -166,6 +166,12 @@ class Frame extends JFrame implements MouseListener, WindowListener {
     private JTextField textCuckooRandomStepSize;
     private JButton btnRunCuckoo;
 
+    private JTextField textHybridCount;
+    private JTextField textHybridIterations;
+    private JTextField textHybridDisperseStepSize;
+    private JTextField textHybridSwarmStepSize;
+    private JTextField textHybridAbandonProbability;
+    private JTextField textHybridFatality;
     private JButton btnRunHybrid;
 
     public Frame() {
@@ -220,7 +226,24 @@ class Frame extends JFrame implements MouseListener, WindowListener {
     }
 
     private void runHybrid(QueueCostFunction costFunction) {
-        /* TODO */
+    	Hybrid hybrids = new Hybrid();
+
+        double disperseStepSize = Double.parseDouble(textHybridDisperseStepSize.getText());
+        double swarmStepSize = Double.parseDouble(textHybridSwarmStepSize.getText());
+        int hybridCount = Integer.parseInt(textHybridCount.getText());
+        int iterations = Integer.parseInt(textHybridIterations.getText());
+        double abandonProbability = Double.parseDouble(textHybridAbandonProbability.getText());
+        double fatality = Double.parseDouble(textHybridFatality.getText());
+
+
+        hybrids.setCostFunction(costFunction);
+        hybrids.setDisperseStepSize(disperseStepSize);
+        hybrids.setSwarmStepSize(swarmStepSize);
+        hybrids.setN(costFunction.getN());
+        hybrids.setPa(abandonProbability);
+
+        int solution = hybrids.solve(getTableModel(), hybridCount, iterations);
+        System.out.printf("solution is: %d\n", solution);
     }
 
     public void runSimulation() {
@@ -380,12 +403,19 @@ class Frame extends JFrame implements MouseListener, WindowListener {
         JPanel panel = new JPanel();
         panel.setLayout(new GridBagLayout());
 
-        btnRunHybrid = addButton("Run", panel, 0);
+        btnRunHybrid = addButton("Run", panel, 6);
         btnRunHybrid.addMouseListener(this);
 
-        /* TODO */
+        Component[] buttonsToLock = new Component[] { btnRunHybrid };
 
-        addVerticalSpacer(panel, 1);
+        textHybridDisperseStepSize =   addParameterInput("Disperse step size:",  "2",    panel, 0, new NonNegativeDoubleVerifier(buttonsToLock));
+        textHybridSwarmStepSize =      addParameterInput("Swarm step size:",     "3",    panel, 1, new NonNegativeDoubleVerifier(buttonsToLock));
+        textHybridCount =              addParameterInput("Cockroaches count:",   "5",    panel, 2, new PositiveIntVerifier(buttonsToLock));
+        textHybridIterations =         addParameterInput("Iterations:",          "50",   panel, 3, new PositiveIntVerifier(buttonsToLock));
+        textHybridAbandonProbability = addParameterInput("Abandon probability:", "0.25", panel, 4, new ProbabilityVerifier(buttonsToLock));
+        textHybridFatality =           addParameterInput("Fatality:",            "0.15", panel, 5, new ProbabilityVerifier(buttonsToLock));
+
+        addVerticalSpacer(panel, 7);
         return panel;
     }
 
