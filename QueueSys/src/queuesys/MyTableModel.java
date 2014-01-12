@@ -21,7 +21,7 @@ public class MyTableModel extends AbstractTableModel {
             "Time"
     };
 
-    public MyTableModel(CostFunction costFunction) {
+    public MyTableModel(QueueCostFunction costFunction) {
         reset(costFunction);
     }
 
@@ -29,9 +29,13 @@ public class MyTableModel extends AbstractTableModel {
         this(null);
     }
 
-    public void reset(CostFunction costFunction) {
+    public void reset(QueueCostFunction costFunction) {
         result = new Result();
         this.costFunction = costFunction;
+
+        if (costFunction != null) {
+            result.add(costFunction.getServicePointNumber());
+        }
     }
 
     public void add(int value) {
@@ -59,7 +63,7 @@ public class MyTableModel extends AbstractTableModel {
     public Object getValueAt(int rowIndex, int columnIndex) {
         switch (columnIndex) {
         case 0:
-            return rowIndex + 1;
+            return rowIndex;
         case 1:
             return result.getValue(rowIndex);
         case 2:

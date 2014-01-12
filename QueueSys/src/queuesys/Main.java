@@ -191,7 +191,7 @@ class Frame extends JFrame implements MouseListener, WindowListener {
         double c1 = Double.parseDouble(textC1.getText());
         double c2 = Double.parseDouble(textC2.getText());
 
-        return new QueueCostFunction(m, N, lambda, mu, c1, c2);
+        return new NewQueueCostFunction(m, N, lambda, mu, c1, c2);
     }
 
     private void runCockroach(QueueCostFunction costFunction) {
