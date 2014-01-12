@@ -4,8 +4,8 @@ package queuesys;
  * Created by dex on 1/12/14.
  */
 public class OldQueueCostFunction extends QueueCostFunction {
-    public OldQueueCostFunction(int m, int N, double l, double u, double c1, double c2) {
-        super(m, N, l, u, c1, c2);
+    public OldQueueCostFunction(int N, double l, double u, double c1, double c2) {
+        super(N, l, u, c1, c2);
     }
 
     public QueueSysResult calculate(int servicePointNumber){

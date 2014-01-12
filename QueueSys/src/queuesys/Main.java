@@ -16,7 +16,7 @@ import javax.swing.*;
 
 class Frame extends JFrame implements MouseListener, WindowListener {
     static enum Algorithm {
-        NONE, COCKROACH, CUCKOO, HYBRID
+        NONE, COCKROACH, CUCKOO, HYBRID, MANUAL
     }
 
     static abstract class VerifierBase extends InputVerifier {
@@ -174,6 +174,10 @@ class Frame extends JFrame implements MouseListener, WindowListener {
     private JTextField textHybridFatality;
     private JButton btnRunHybrid;
 
+    private JTextField textManualMin;
+    private JTextField textManualMax;
+    private JButton btnRunManual;
+
     public Frame() {
         javax.swing.SwingUtilities.invokeLater(new Runnable() {
             @Override
@@ -187,11 +191,10 @@ class Frame extends JFrame implements MouseListener, WindowListener {
         double lambda = Double.parseDouble(textLambda.getText());
         double mu = Double.parseDouble(textMu.getText());
         int N = Integer.parseInt(textN.getText());
-        int m = Integer.parseInt(textM.getText());
         double c1 = Double.parseDouble(textC1.getText());
         double c2 = Double.parseDouble(textC2.getText());
 
-        return new NewQueueCostFunction(m, N, lambda, mu, c1, c2);
+        return new OldQueueCostFunction(N, lambda, mu, c1, c2);
     }
 
     private void runCockroach(QueueCostFunction costFunction) {
@@ -246,6 +249,33 @@ class Frame extends JFrame implements MouseListener, WindowListener {
         System.out.printf("solution is: %d\n", solution);
     }
 
+    private void runManual(QueueCostFunction costFunction) {
+        int min = Integer.parseInt(textManualMin.getText());
+        int max = Integer.parseInt(textManualMax.getText());
+
+        if (max < min) {
+            int tmp = min;
+            min = max;
+            max = tmp;
+        }
+
+        if (min < 1) {
+            min = 1;
+        } else if (min > costFunction.getN()) {
+            min = costFunction.getN();
+        }
+
+        if (max < 1) {
+            max = 1;
+        } else if (max > costFunction.getN()) {
+            max = costFunction.getN();
+        }
+
+        for (int i = min; i <= max; ++i) {
+            getTableModel().add(i);
+        }
+    }
+
     public void runSimulation() {
         do {
             synchronized (this) {
@@ -266,6 +296,7 @@ class Frame extends JFrame implements MouseListener, WindowListener {
             btnRunCockroaches.setEnabled(false);
             btnRunCuckoo.setEnabled(false);
             btnRunHybrid.setEnabled(false);
+            btnRunManual.setEnabled(false);
 
             QueueCostFunction costFunction = getCostFunction();
             getTableModel().reset(costFunction);
@@ -280,6 +311,9 @@ class Frame extends JFrame implements MouseListener, WindowListener {
                 case HYBRID:
                     runHybrid(costFunction);
                     break;
+                case MANUAL:
+                    runManual(costFunction);
+                    break;
                 default:
                     break;
             }
@@ -287,6 +321,7 @@ class Frame extends JFrame implements MouseListener, WindowListener {
             btnRunCockroaches.setEnabled(true);
             btnRunCuckoo.setEnabled(true);
             btnRunHybrid.setEnabled(true);
+            btnRunManual.setEnabled(true);
 
             algorithm = Algorithm.NONE;
         } while (!isClosing);
@@ -355,11 +390,10 @@ class Frame extends JFrame implements MouseListener, WindowListener {
         textLambda = addParameterInput("Lambda:", "19", panel, 0, new DoubleVerifier(buttonsToLock));
         textMu =     addParameterInput("Mu:",     "10", panel, 1, new PositiveDoubleVerifier(buttonsToLock));
         textN =      addParameterInput("N:",      "15", panel, 2, new PositiveIntVerifier(buttonsToLock));
-        textM =      addParameterInput("m:",      "1",  panel, 3, new PositiveIntVerifier(buttonsToLock));
-        textC1 =     addParameterInput("C1:",     "4",  panel, 4, new DoubleVerifier(buttonsToLock));
-        textC2 =     addParameterInput("C2:",     "12", panel, 5, new DoubleVerifier(buttonsToLock));
+        textC1 =     addParameterInput("C1:",     "4",  panel, 3, new DoubleVerifier(buttonsToLock));
+        textC2 =     addParameterInput("C2:",     "12", panel, 4, new DoubleVerifier(buttonsToLock));
 
-        addVerticalSpacer(panel, 6);
+        addVerticalSpacer(panel, 5);
         return panel;
     }
 
@@ -419,6 +453,22 @@ class Frame extends JFrame implements MouseListener, WindowListener {
         return panel;
     }
 
+    private JPanel createManualPanel() {
+        JPanel panel = new JPanel();
+        panel.setLayout(new GridBagLayout());
+
+        btnRunManual = addButton("Run", panel, 2);
+        btnRunManual.addMouseListener(this);
+
+        Component[] buttonsToLock = new Component[] { btnRunManual };
+
+        textManualMin = addParameterInput("Min m:", "1",  panel, 0, new PositiveIntVerifier(buttonsToLock));
+        textManualMax = addParameterInput("Max m:", "10", panel, 1, new PositiveIntVerifier(buttonsToLock));
+
+        addVerticalSpacer(panel, 3);
+        return panel;
+    }
+
     private void createAndShowGUI() {
         setTitle("BO");
         addWindowListener(this);
@@ -442,6 +492,7 @@ class Frame extends JFrame implements MouseListener, WindowListener {
         tabbedPane.addTab("Cockroach", createCockroachPanel());
         tabbedPane.addTab("Cuckoo", createCuckooPanel());
         tabbedPane.addTab("Hybrid", createHybridPanel());
+        tabbedPane.addTab("Manual", createManualPanel());
 
         constraints.gridy = 0;
         sidePanel.add(createCommonPanel(), constraints);
@@ -477,6 +528,8 @@ class Frame extends JFrame implements MouseListener, WindowListener {
                 algorithm = Algorithm.CUCKOO;
             } else if (button == btnRunHybrid) {
                 algorithm = Algorithm.HYBRID;
+            } else if (button == btnRunManual) {
+                algorithm = Algorithm.MANUAL;
             } else {
                 throw new RuntimeException("something went terribly wrong");
             }

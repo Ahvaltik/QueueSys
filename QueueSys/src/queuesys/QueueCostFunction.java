@@ -11,17 +11,12 @@ import java.util.*;
  * @author Paweł
  */
 public abstract class QueueCostFunction extends CostFunction {
-    protected final int servicePointNumber;
     protected final int N;
     protected final double lambda;
     protected final double mu;
     protected final double c1;
     protected final double c2;
     protected TreeMap<Integer, QueueSysResult> cachedResults = new TreeMap<>();
-
-    public int getServicePointNumber() {
-        return servicePointNumber;
-    }
 
     public int getN() {
         return N;
@@ -43,8 +38,7 @@ public abstract class QueueCostFunction extends CostFunction {
         return c2;
     }
 
-    public QueueCostFunction(int m, int N, double l, double u, double c1, double c2) {
-        this.servicePointNumber = m;
+    public QueueCostFunction(int N, double l, double u, double c1, double c2) {
         this.N = N;
         this.lambda = l;
         this.mu = u;

@@ -8,8 +8,8 @@ import java.util.TreeMap;
  * @author Marcin
  */
 public class NewQueueCostFunction extends QueueCostFunction {
-    public NewQueueCostFunction(int m, int N, double l, double u, double c1, double c2) {
-        super(m, N, l, u, c1, c2);
+    public NewQueueCostFunction(int N, double l, double u, double c1, double c2) {
+        super(N, l, u, c1, c2);
     }
 
     public QueueSysResult calculate(int m) {
