@@ -22,17 +22,18 @@ public class OldQueueCostFunction extends QueueCostFunction {
         double averageSystemCalls = p0;
         averageSystemCalls *= factorial(N);
         double temp = 0;
-        for(int i = 0; i <= servicePointNumber ; i++){
-            temp += Math.pow(ro, i)*i/(factorial(N-i)*factorial(i));
-        }
         for(int i = servicePointNumber+1; i <= N ; i++){
             temp += Math.pow(ro, i)*i/(factorial(N-i)*factorial(servicePointNumber)*Math.pow(servicePointNumber, i-servicePointNumber));
         }
+        double averageQueueCalls = p0 * factorial(N) * temp;
+        for(int i = 0; i <= servicePointNumber ; i++){
+            temp += Math.pow(ro, i)*i/(factorial(N-i)*factorial(i));
+        }
         averageSystemCalls *= temp;
         double averageSystemTime = averageSystemCalls/(lambda*(N-averageSystemCalls));
-        double averageQueueTime = averageSystemTime - 1/mu;
-        double averageQueueCalls = 0.0;
-        double averageOccupiedServicePoints = (N-averageSystemCalls)*ro;
+        //double averageOccupiedServicePoints = (N-averageSystemCalls)*ro;
+        double averageQueueTime = averageQueueCalls/(lambda*(N-averageSystemCalls));
+        double averageOccupiedServicePoints = averageSystemCalls-averageQueueCalls;
 
         double value = c1*servicePointNumber + c2*averageSystemCalls;
 
