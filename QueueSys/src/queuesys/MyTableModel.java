@@ -21,9 +21,9 @@ public class MyTableModel extends AbstractTableModel {
         @Override
         public String toString() {
             if (minIteration != maxIteration) {
-                return String.format("%d - %d", minIteration, maxIteration);
+                return String.format("%d - %d", minIteration + 1, maxIteration + 1);
             } else {
-                return new Integer(minIteration).toString();
+                return new Integer(minIteration + 1).toString();
             }
         }
     }
