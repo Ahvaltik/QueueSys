@@ -63,15 +63,15 @@ public class MyTableModel extends AbstractTableModel {
         case 1:
             return result.getValue(rowIndex);
         case 2:
-            return String.format("%.2f", costFunction.result(result.getValue(rowIndex)).cost);
+            return String.format("%.4f", costFunction.result(result.getValue(rowIndex)).cost);
         case 3:
-            return String.format("%.2f", costFunction.result(result.getValue(rowIndex)).averageSystemTime);
+            return String.format("%.4f", costFunction.result(result.getValue(rowIndex)).averageSystemTime);
         case 4:
-            return String.format("%.2f", costFunction.result(result.getValue(rowIndex)).averageSystemCalls);
+            return String.format("%.4f", costFunction.result(result.getValue(rowIndex)).averageSystemCalls);
         case 5:
-            return String.format("%.2f", costFunction.result(result.getValue(rowIndex)).averageQueueTime);
+            return String.format("%.4f", costFunction.result(result.getValue(rowIndex)).averageQueueTime);
         case 6:
-            return String.format("%.2f", costFunction.result(result.getValue(rowIndex)).averageQueueCalls);
+            return String.format("%.4f", costFunction.result(result.getValue(rowIndex)).averageQueueCalls);
         case 7:
             return result.getTimeOffset(rowIndex);
         default:

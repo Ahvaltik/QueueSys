@@ -13,6 +13,7 @@ import queuesys.search.cockroaches.Cockroaches;
 import queuesys.search.hybrid.Hybrid;
 
 import javax.swing.*;
+import queuesys.search.cuckoo.CuckooSearch;
 
 class Frame extends JFrame implements MouseListener, WindowListener {
     static enum Algorithm {
@@ -216,13 +217,13 @@ class Frame extends JFrame implements MouseListener, WindowListener {
 
     private void runCuckoo(QueueCostFunction costFunction) {
         int nestsCount = Integer.parseInt(textCuckooNestsCount.getText());
-        int iterations = Integer.parseInt(textCockroachIterations.getText());
+        int iterations = Integer.parseInt(textCuckooIterations.getText());
         double abandonProbability = Double.parseDouble(textCuckooAbandonProbability.getText());
         double randomStepSize = Double.parseDouble(textCuckooRandomStepSize.getText());
 
         try {
-            System.out.println("Cuckoo Search solutions:");
-            queuesys.search.cuckoo.CuckooSearch.optymalization(getTableModel(), nestsCount, iterations, abandonProbability, randomStepSize, costFunction.getN(), costFunction);
+            CuckooSearch algo = new CuckooSearch();
+            algo.optymalization(getTableModel(), nestsCount, iterations, abandonProbability, randomStepSize, costFunction.getN(), costFunction);
         } catch (Exception ex) {
             Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -387,7 +388,7 @@ class Frame extends JFrame implements MouseListener, WindowListener {
                 btnRunCockroaches, btnRunCuckoo, btnRunHybrid
         };
 
-        textLambda = addParameterInput("Lambda:", "19", panel, 0, new DoubleVerifier(buttonsToLock));
+        textLambda = addParameterInput("Lambda:", "19", panel, 0, new PositiveDoubleVerifier(buttonsToLock));
         textMu =     addParameterInput("Mu:",     "10", panel, 1, new PositiveDoubleVerifier(buttonsToLock));
         textN =      addParameterInput("N:",      "15", panel, 2, new PositiveIntVerifier(buttonsToLock));
         textC1 =     addParameterInput("C1:",     "4",  panel, 3, new DoubleVerifier(buttonsToLock));

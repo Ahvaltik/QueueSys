@@ -14,8 +14,8 @@ import queuesys.Result;
  * @author Anna Rutka, Daniel Bryła
  * 
  */
-public abstract class CuckooSearch {
-	private static ArrayList<Nest> nests = new ArrayList<Nest>();
+public class CuckooSearch {
+	private ArrayList<Nest> nests = new ArrayList<Nest>();
 
 	/**
 	 * algorithm for finding minimum of function by cuckoo search
@@ -36,7 +36,7 @@ public abstract class CuckooSearch {
 	 * @throws Exception
 	 *             for giving bad parameters
 	 */
-	public static Result optymalization(MyTableModel model, int nestsNumber, int iterations,
+	public Result optymalization(MyTableModel model, int nestsNumber, int iterations,
 			double pa, double stepSize, int N, CostFunction function)
 			throws Exception {
 		if (nestsNumber <= 0 || iterations <= 0 || pa < 0 || pa > 1
@@ -76,7 +76,7 @@ public abstract class CuckooSearch {
 		return model.getResult();
 	}
 
-	private static void abandonAndBuildNewNest(double pa, int N) {
+	private void abandonAndBuildNewNest(double pa, int N) {
 		if (Math.random() <= pa)
 			nests.set(nests.size() - 1, new Nest(new Egg(N)));
 	}
