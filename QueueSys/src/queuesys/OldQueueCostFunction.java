@@ -31,7 +31,6 @@ public class OldQueueCostFunction extends QueueCostFunction {
         }
         averageSystemCalls *= temp;
         double averageSystemTime = averageSystemCalls/(lambda*(N-averageSystemCalls));
-        //double averageOccupiedServicePoints = (N-averageSystemCalls)*ro;
         double averageQueueTime = averageQueueCalls/(lambda*(N-averageSystemCalls));
         double averageOccupiedServicePoints = (N - averageSystemCalls)*ro;
 
