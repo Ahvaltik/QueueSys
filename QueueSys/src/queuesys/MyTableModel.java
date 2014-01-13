@@ -1,6 +1,7 @@
 package queuesys;
 
 import javax.swing.table.AbstractTableModel;
+import java.util.ArrayList;
 
 /**
  *
@@ -8,10 +9,30 @@ import javax.swing.table.AbstractTableModel;
  */
 
 public class MyTableModel extends AbstractTableModel {
+    private static class ResultGroup {
+        public int minIteration;
+        public int maxIteration;
+
+        public ResultGroup(int minIteration, int maxIteration) {
+            this.minIteration = minIteration;
+            this.maxIteration = maxIteration;
+        }
+
+        @Override
+        public String toString() {
+            if (minIteration != maxIteration) {
+                return String.format("%d - %d", minIteration, maxIteration);
+            } else {
+                return new Integer(minIteration).toString();
+            }
+        }
+    }
+
     private Result result = new Result();
+    private ArrayList<ResultGroup> resultGroups = new ArrayList<>();
     private CostFunction costFunction;
     private static final String[] COLUMN_NAMES = new String[] {
-            "Iteration",
+            "Iteration(s)",
             "Value",
             "Cost",
             "Avg sys time",
@@ -31,17 +52,24 @@ public class MyTableModel extends AbstractTableModel {
 
     public void reset(QueueCostFunction costFunction) {
         result = new Result();
+        resultGroups = new ArrayList<>();
         this.costFunction = costFunction;
     }
 
     public void add(int value) {
+        if (result.size() > 0 && result.getValue((int)result.size() - 1) == value) {
+            resultGroups.get(resultGroups.size() - 1).maxIteration++;
+        } else {
+            resultGroups.add(new ResultGroup((int)result.size(), (int)result.size()));
+        }
+
         result.add(value);
-        fireTableRowsInserted((int)result.size() - 1, (int)result.size() - 1);
+        fireTableRowsInserted(resultGroups.size() - 1, resultGroups.size() - 1);
     }
 
     @Override
     public int getRowCount() {
-        return (int)result.size();
+        return resultGroups.size();
     }
 
     @Override
@@ -57,23 +85,25 @@ public class MyTableModel extends AbstractTableModel {
 
     @Override
     public Object getValueAt(int rowIndex, int columnIndex) {
+        ResultGroup group = resultGroups.get(rowIndex);
+
         switch (columnIndex) {
         case 0:
-            return rowIndex + 1;
+            return group.toString();
         case 1:
-            return result.getValue(rowIndex);
+            return result.getValue(group.minIteration);
         case 2:
-            return String.format("%.4f", costFunction.result(result.getValue(rowIndex)).cost);
+            return String.format("%.4f", costFunction.result(result.getValue(group.minIteration)).cost);
         case 3:
-            return String.format("%.4f", costFunction.result(result.getValue(rowIndex)).averageSystemTime);
+            return String.format("%.4f", costFunction.result(result.getValue(group.minIteration)).averageSystemTime);
         case 4:
-            return String.format("%.4f", costFunction.result(result.getValue(rowIndex)).averageSystemCalls);
+            return String.format("%.4f", costFunction.result(result.getValue(group.minIteration)).averageSystemCalls);
         case 5:
-            return String.format("%.4f", costFunction.result(result.getValue(rowIndex)).averageQueueTime);
+            return String.format("%.4f", costFunction.result(result.getValue(group.minIteration)).averageQueueTime);
         case 6:
-            return String.format("%.4f", costFunction.result(result.getValue(rowIndex)).averageQueueCalls);
+            return String.format("%.4f", costFunction.result(result.getValue(group.minIteration)).averageQueueCalls);
         case 7:
-            return result.getTimeOffset(rowIndex);
+            return result.getTimeOffset(group.minIteration);
         default:
             throw new RuntimeException("invalid row index");
         }

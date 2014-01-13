@@ -27,7 +27,6 @@ public class Result {
             this.value = value;
             this.millisec = millisec;
         }
-        
     }
     
     public void add(int value){
